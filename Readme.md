@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Alexander Strakhovenko](https://up.htmlacademy.ru/javascript/19/user/235995).
-* Наставник: `Неизвестно`.
+* Наставник: `На халяву не бывает!`.
 
 ---
 
