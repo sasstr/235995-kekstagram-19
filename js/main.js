@@ -1,6 +1,6 @@
 'use strict';
 
-var amountOfPhoto = 25;
+var AMOUNT_OF_PHOTOS = 25;
 var comments = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -39,6 +39,7 @@ var names = [
   'Коля'
 ];
 var pictureElement = document.querySelector('.pictures');
+var main = document.querySelector('main');
 
 /**
  * Функция возращает случайное целое число между min и max - включительно
@@ -114,15 +115,15 @@ var createUserPhoto = function (i) {
  * @return {array} массив объектов фоток
  */
 var createArrayOfPhotos = function (amountOfPhotos) {
-  var arrayOfPhotos = [];
+  var photosArray = [];
   for (var i = 0; i < amountOfPhotos; i++) {
-    arrayOfPhotos.push(createUserPhoto(i));
+    photosArray.push(createUserPhoto(i));
   }
-  return arrayOfPhotos;
+  return photosArray;
 };
 
 // Создаем массив фоток
-var arrayOfPhotos = createArrayOfPhotos(amountOfPhoto);
+var arrayOfPhotos = createArrayOfPhotos(AMOUNT_OF_PHOTOS);
 
 /**
  *  Функция создает DOM элемент #picture
@@ -145,52 +146,70 @@ var createPicture = function (picture) {
  */
 var renderPictures = function () {
   var pictures = document.createDocumentFragment();
-  for (var i = 0; i < amountOfPhoto; i++) {
+  for (var i = 0; i < AMOUNT_OF_PHOTOS; i++) {
     pictures.appendChild(createPicture(arrayOfPhotos[i]));
   }
   return pictures;
 };
 
 pictureElement.appendChild(renderPictures());
+var bigPicture = document.querySelector('.big-picture');
 
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
- *
+ * @param {object} photo Объект с даннными о фото
  * @return {void} создает элемент модального окна .big-picture из первой фотки
  */
-var createBigPicture = function () {
-  var firstPhoto = arrayOfPhotos[0];
-  var bigPicture = document.querySelector('.big-picture');
-  var bigPictureImg = bigPicture.querySelector('.big-picture__img img');
-  var likesCount = bigPicture.querySelector('.likes-count');
-  var commentsCount = bigPicture.querySelector('.comments-count');
-  var socialComments = bigPicture.querySelector('.social__comments');
-  var socialComment = bigPicture.querySelector('.social__comment');
+var createBigPicture = function () {  // @TODO Сделать две функи ShowPicture(element) { append photo} и createPicture(object) {return element}
+  var photo = arrayOfPhotos[0];
+  var cloneBigPicture = bigPicture.cloneNode(true);
+  var bigPictureImg = cloneBigPicture.querySelector('.big-picture__img img');
+  var likesCount = cloneBigPicture.querySelector('.likes-count');
+  var commentsCount = cloneBigPicture.querySelector('.comments-count');
+  var socialComments = cloneBigPicture.querySelector('.social__comments');
+  var socialComment = cloneBigPicture.querySelector('.social__comment');
 
-  bigPictureImg.src = firstPhoto.url;
-  likesCount.textContent = firstPhoto.likes;
-  commentsCount.textContent = firstPhoto.likes;
-  bigPicture.querySelector('.social__caption').textContent = firstPhoto.description;
-  bigPicture.querySelectorAll('.social__comment').forEach(function (li) {
+  bigPictureImg.src = photo.url;
+  likesCount.textContent = photo.likes;
+  commentsCount.textContent = photo.likes;
+  cloneBigPicture.querySelector('.social__caption').textContent = photo.description;
+
+  cloneBigPicture.querySelectorAll('.social__comment').forEach(function (li) {
     li.remove();
   });
-  firstPhoto.comments.forEach(function (comment) {
+
+  photo.comments.forEach(function (comment) {
     socialComment.querySelector('.social__picture').src = comment.avatar;
     socialComment.querySelector('.social__text').textContent = comment.massage;
     socialComments.appendChild(socialComment);
   });
+  return cloneBigPicture;
+};
+// Функция
+var showComments = function (socialComment) {
+  var socialComments = bigPicture.querySelector('.social__comments');
+
+  socialComments.appendChild(socialComment);
+};
+document.body.classList.add('modal-open');
+// Функция
+var showBigPicture = function () {
+  main.insertBefore(createBigPicture(), null);
 };
 
-createBigPicture();
+var hiddenBigPicture = function () {
+  main.removeChild(document.querySelector('.big-picture'));
+};
 
 var pictureCancelBtn = document.querySelector('#picture-cancel');
-var bigPicture = document.querySelector('.big-picture');
 var pictureImg = document.querySelector('.picture__img');
 // Вешеаем событие клик на крестик для закрытия окна
 pictureCancelBtn.addEventListener('click', function () {
-  bigPicture.classList.add('hidden');
+  hiddenBigPicture();
+  // bigPicture.classList.add('hidden');
 });
 // Вешаем событие клик на первую фотку что бы открыть модалку
 pictureImg.addEventListener('click', function () {
-  bigPicture.classList.remove('hidden');
+  showBigPicture();
+  // bigPicture.classList.remove('hidden');
 });
