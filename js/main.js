@@ -40,7 +40,6 @@ var names = [
 ];
 var pictureElement = document.querySelector('.pictures');
 var main = document.querySelector('main');
-var pictureImg = document.querySelector('.picture__img');
 var bigPicture = document.querySelector('.big-picture');
 
 /**
@@ -217,6 +216,7 @@ var showBigPicture = function () {
 
 };
 
+var pictureImg = document.querySelector('.picture__img');
 // Вешаем событие клик на первую фотку что бы открыть модалку
 pictureImg.addEventListener('click', function () {
   showBigPicture();
