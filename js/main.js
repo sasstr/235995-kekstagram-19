@@ -40,6 +40,8 @@ var names = [
 ];
 var pictureElement = document.querySelector('.pictures');
 var main = document.querySelector('main');
+var pictureImg = document.querySelector('.picture__img');
+var bigPicture = document.querySelector('.big-picture');
 
 /**
  * Функция возращает случайное целое число между min и max - включительно
@@ -153,7 +155,6 @@ var renderPictures = function () {
 };
 
 pictureElement.appendChild(renderPictures());
-var bigPicture = document.querySelector('.big-picture');
 
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
@@ -215,9 +216,6 @@ var showBigPicture = function () {
   picture.classList.remove('hidden');
 
 };
-
-var pictureImg = document.querySelector('.picture__img');
-
 
 // Вешаем событие клик на первую фотку что бы открыть модалку
 pictureImg.addEventListener('click', function () {
