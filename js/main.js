@@ -188,16 +188,22 @@ var createBigPicture = function (photo) {
   return cloneBigPicture;
 };
 
-// document.body.classList.add('modal-open');
-
-// Функция скрывает модальное окно с большой фоткой
+/** Функция скрывает модальное окно с большой фоткой
+ *
+ * @return {void} скрывает модальное окно с большой фоткой
+ */
 var hiddenBigPicture = function () {
   var currentBigPicture = document.querySelector('.big-picture');
   main.removeChild(currentBigPicture);
   currentBigPicture.classList.add('hidden');
 };
 
-// Функция показывает модальное окно с большой фоткой
+
+/** Функция показывает модальное окно с большой фоткой
+ *
+ * @return {void} показывает модальное окно с большой фоткой
+ *
+ */
 var showBigPicture = function () {
   var picture = createBigPicture(arrayOfPhotos[0]);
 
