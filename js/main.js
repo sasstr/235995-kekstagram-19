@@ -160,8 +160,10 @@ var bigPicture = document.querySelector('.big-picture');
  * @param {object} photo Объект с даннными о фото
  * @return {void} создает элемент модального окна .big-picture из первой фотки
  */
-var createBigPicture = function () {  // @TODO Сделать две функи ShowPicture(element) { append photo} и createPicture(object) {return element}
-  var photo = arrayOfPhotos[0];
+var createBigPicture = function (photo) {
+  if (document.querySelector('.big-picture')) {
+    main.removeChild(document.querySelector('.big-picture'));
+  }
   var cloneBigPicture = bigPicture.cloneNode(true);
   var bigPictureImg = cloneBigPicture.querySelector('.big-picture__img img');
   var likesCount = cloneBigPicture.querySelector('.likes-count');
@@ -185,31 +187,33 @@ var createBigPicture = function () {  // @TODO Сделать две функи 
   });
   return cloneBigPicture;
 };
-// Функция
-var showComments = function (socialComment) {
-  var socialComments = bigPicture.querySelector('.social__comments');
 
-  socialComments.appendChild(socialComment);
-};
-document.body.classList.add('modal-open');
-// Функция
-var showBigPicture = function () {
-  main.insertBefore(createBigPicture(), null);
-};
+// document.body.classList.add('modal-open');
 
+// Функция скрывает модальное окно с большой фоткой
 var hiddenBigPicture = function () {
-  main.removeChild(document.querySelector('.big-picture'));
+  var currentBigPicture = document.querySelector('.big-picture');
+  main.removeChild(currentBigPicture);
+  currentBigPicture.classList.add('hidden');
 };
 
-var pictureCancelBtn = document.querySelector('#picture-cancel');
+// Функция показывает модальное окно с большой фоткой
+var showBigPicture = function () {
+  var picture = createBigPicture(arrayOfPhotos[0]);
+
+  picture.querySelector('#picture-cancel').addEventListener('click', function () {
+    hiddenBigPicture();
+  });
+
+  main.insertBefore(picture, null);
+  picture.classList.remove('hidden');
+
+};
+
 var pictureImg = document.querySelector('.picture__img');
-// Вешеаем событие клик на крестик для закрытия окна
-pictureCancelBtn.addEventListener('click', function () {
-  hiddenBigPicture();
-  // bigPicture.classList.add('hidden');
-});
+
+
 // Вешаем событие клик на первую фотку что бы открыть модалку
 pictureImg.addEventListener('click', function () {
   showBigPicture();
-  // bigPicture.classList.remove('hidden');
 });
