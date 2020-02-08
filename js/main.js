@@ -58,8 +58,8 @@ var getRandomInteger = function (min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
-//  Функция возращает случайный элемент массива
 /**
+ *  Функция возращает случайный элемент массива
  * @param {array} array массив
  * @return {array} возращает случайный элемент массива
  */
@@ -67,8 +67,8 @@ var getRendomItemOfArray = function (array) {
   return array[getRandomInteger(0, array.length)];
 };
 
-//  Функция перемешивает элементы массива
 /**
+ *  Функция перемешивает элементы массива
  * @param {array} array массив
  * @return {array} возращает массив с перемешанными случайным образом элементами
  */
@@ -85,8 +85,7 @@ var shuffleElemetsOfArray = function (array) {
   return cloneArray;
 };
 
-// Функция создает комментарий к фото
-/**
+/** Функция создает комментарий к фото
  * @return {object} объект с комментарием фото
  */
 var createComment = function () {
@@ -99,8 +98,9 @@ var createComment = function () {
   };
 };
 
-//  Функция создает один элемент массива с данными, которые будут описывать фотографии
+
 /**
+ * Функция создает один элемент массива с данными, которые будут описывать фотографии
  * @param {number} index индекс
  * @return {object} Объект описывающий фото
  */
@@ -149,14 +149,14 @@ var createPicture = function (picture) {
 
 /**
  *  Функция отрисует все фотки
- * @param {array} pictures Массив фоток
+ * @param {array} picturesList Массив фоток
  * @param {element} fragment Элемент фрагмент
  * @return {element} отрисует все фотки
  */
-var renderPictures = function (pictures) {
+var renderPictures = function (picturesList) {
   var picturesFragment = document.createDocumentFragment();
-  for (var i = 0; i < pictures.length; i++) {
-    picturesFragment.appendChild(createPicture(pictures[i]));
+  for (var i = 0; i < picturesList.length; i++) {
+    picturesFragment.appendChild(createPicture(picturesList[i]));
   }
   return picturesFragment;
 };
@@ -176,20 +176,13 @@ var createBigPicture = function (picture) {
   var bigPictureImg = cloneBigPicture.querySelector('.big-picture__img img');
   var likesCount = cloneBigPicture.querySelector('.likes-count');
   var commentsCount = cloneBigPicture.querySelector('.comments-count');
-  var socialComments = cloneBigPicture.querySelector('.social__comments');
+  var socialComments = cloneBigPicture.querySelector('.social__comments').cloneNode();
   var socialButton = cloneBigPicture.querySelector('.social__comments-loader');
-  // var socialCommentCount = cloneBigPicture.querySelector('.social__comment-count');
 
   bigPictureImg.src = picture.url;
   likesCount.textContent = picture.likes;
   commentsCount.textContent = picture.likes;
   cloneBigPicture.querySelector('.social__caption').textContent = picture.description;
-  // socialCommentCount.textContent = picture.comments.length;
-
-  socialComments.remove();
-  // socialComents.innerHtml = ''; убрать коменты @TODO
-  var newSocialComments = document.createElement('ul');
-  newSocialComments.classList.add('social__comments');
 
   picture.comments.forEach(function (comment) {
     var liComment = document.createElement('li');
@@ -207,15 +200,16 @@ var createBigPicture = function (picture) {
     liComment.append(imgComment);
     liComment.append(pComment);
 
-    newSocialComments.appendChild(liComment);
+    socialComments.appendChild(liComment);
   });
 
-  socialButton.insertAdjacentElement('beforeBegin', newSocialComments);
+  socialButton.insertAdjacentElement('beforeBegin', socialComments);
 
   return cloneBigPicture;
 };
 
-/** Функция скрывает модальное окно с большой фоткой
+/**
+ *  Функция скрывает модальное окно с большой фоткой
  *
  * @return {void} скрывает модальное окно с большой фоткой
  */
@@ -225,7 +219,8 @@ var hiddenBigPicture = function () {
   currentBigPicture.classList.add('hidden');
 };
 
-/** Функция показывает модальное окно с большой фоткой
+/**
+ *  Функция показывает модальное окно с большой фоткой
  *
  * @return {void} показывает модальное окно с большой фоткой
  *
