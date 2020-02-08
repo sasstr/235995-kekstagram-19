@@ -22,6 +22,10 @@ var CommentsAmount = {
   MIN: 1,
   MAX: 3
 };
+var Comments = {
+  MIN: 1,
+  MAX: 7
+};
 var AvatarAmount = {
   MIN: 1,
   MAX: 6
@@ -88,7 +92,7 @@ var shuffleElemetsOfArray = function (array) {
 var createComment = function () {
   return {
     avatar: 'img/avatar-' + getRandomInteger(AvatarAmount.MIN, AvatarAmount.MAX) + '.svg',
-    massage: shuffleElemetsOfArray(comments)
+    message: shuffleElemetsOfArray(comments)
                     .slice(0, getRandomInteger(CommentsAmount.MIN, CommentsAmount.MAX))
                     .join(' '), // получаем строку из двух случайных коментов
     name: getRendomItemOfArray(names)
@@ -104,7 +108,7 @@ var createUserPicture = function (index) {
   return {
     url: 'photos/' + (index + 1) + '.jpg', // Добавить счетчик что бы не повторялись фото от 1 до 25
     likes: getRandomInteger(LikesAmount.MIN, LikesAmount.MAX),
-    comments: new Array(getRandomInteger(CommentsAmount.MIN, CommentsAmount.MAX))
+    comments: new Array(getRandomInteger(Comments.MIN, Comments.MAX))
                 .fill('')
                 .map(createComment),
     description: descriptions[getRandomInteger(0, descriptions.length - 1)]
@@ -142,22 +146,22 @@ var createPicture = function (picture) {
 
   return pictureDomElement;
 };
-var picturesFragment = document.createDocumentFragment();
+
 /**
  *  Функция отрисует все фотки
- * @param {number} amountPictures колличество фоток
  * @param {array} pictures Массив фоток
  * @param {element} fragment Элемент фрагмент
  * @return {element} отрисует все фотки
  */
-var renderPictures = function (amountPictures, pictures, fragment) {
-  for (var i = 0; i < amountPictures; i++) {
-    fragment.appendChild(createPicture(pictures[i]));
+var renderPictures = function (pictures) {
+  var picturesFragment = document.createDocumentFragment();
+  for (var i = 0; i < pictures.length; i++) {
+    picturesFragment.appendChild(createPicture(pictures[i]));
   }
-  return fragment;
+  return picturesFragment;
 };
 
-pictureElement.appendChild(renderPictures(AMOUNT_OF_PHOTOS, pictures, picturesFragment));
+pictureElement.appendChild(renderPictures(pictures));
 
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
@@ -173,23 +177,37 @@ var createBigPicture = function (picture) {
   var likesCount = cloneBigPicture.querySelector('.likes-count');
   var commentsCount = cloneBigPicture.querySelector('.comments-count');
   var socialComments = cloneBigPicture.querySelector('.social__comments');
-  var socialComment = cloneBigPicture.querySelector('.social__comment');
   var socialButton = cloneBigPicture.querySelector('.social__comments-loader');
+  // var socialCommentCount = cloneBigPicture.querySelector('.social__comment-count');
 
   bigPictureImg.src = picture.url;
   likesCount.textContent = picture.likes;
   commentsCount.textContent = picture.likes;
   cloneBigPicture.querySelector('.social__caption').textContent = picture.description;
+  // socialCommentCount.textContent = picture.comments.length;
 
   socialComments.remove();
-
+  // socialComents.innerHtml = ''; убрать коменты @TODO
   var newSocialComments = document.createElement('ul');
   newSocialComments.classList.add('social__comments');
 
   picture.comments.forEach(function (comment) {
-    socialComment.querySelector('.social__picture').src = comment.avatar;
-    socialComment.querySelector('.social__text').textContent = comment.massage;
-    newSocialComments.appendChild(socialComment);
+    var liComment = document.createElement('li');
+    var imgComment = document.createElement('img');
+    var pComment = document.createElement('p');
+
+    liComment.classList.add('social__comment');
+    imgComment.classList.add('social__picture');
+    imgComment.src = comment.avatar;
+    imgComment.alt = 'Аватар комментатора фотографии';
+    imgComment.width = '35';
+    imgComment.height = '35';
+    pComment.classList.add('social__text');
+    pComment.textContent = comment.message;
+    liComment.append(imgComment);
+    liComment.append(pComment);
+
+    newSocialComments.appendChild(liComment);
   });
 
   socialButton.insertAdjacentElement('beforeBegin', newSocialComments);
@@ -206,7 +224,6 @@ var hiddenBigPicture = function () {
   main.removeChild(currentBigPicture);
   currentBigPicture.classList.add('hidden');
 };
-
 
 /** Функция показывает модальное окно с большой фоткой
  *
