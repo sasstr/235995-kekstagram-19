@@ -185,10 +185,14 @@ var createBigPicture = function (picture) {
 
   socialComments.innerHTML = '';
 
+  cloneBigPicture.querySelector('.social__comment-count').classList.add('hidden');
+  cloneBigPicture.querySelector('.comments-loader').classList.add('hidden');
+
   picture.comments.forEach(function (comment) {
     var newSocialComment = socialComment.cloneNode(true);
     newSocialComment.querySelector('.social__picture').src = comment.avatar;
     newSocialComment.querySelector('.social__text').textContent = comment.message;
+    newSocialComment.querySelector('.social__picture').alt = comment.name;
 
     socialComments.appendChild(newSocialComment);
   });
@@ -225,6 +229,8 @@ var showBigPicture = function () {
   main.insertBefore(picture, null);
   picture.classList.remove('hidden');
 };
+
+document.body.classList.add('modal-open');
 
 var pictureImg = document.querySelector('.picture__img');
 // Вешаем событие клик на первую фотку что бы открыть модалку
