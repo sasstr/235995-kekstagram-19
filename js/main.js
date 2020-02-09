@@ -82,6 +82,7 @@ var shuffleElemetsOfArray = function (array) {
     cloneArray[j] = cloneArray[i];
     cloneArray[i] = temp;
   }
+
   return cloneArray;
 };
 
@@ -112,7 +113,6 @@ var createUserPicture = function (index) {
                 .fill('')
                 .map(createComment),
     description: descriptions[getRandomInteger(0, descriptions.length - 1)]
-
   };
 };
 
@@ -126,6 +126,7 @@ var createArrayOfPictures = function (amountOfPictures) {
   for (var i = 0; i < amountOfPictures; i++) {
     pictures.push(createUserPicture(i));
   }
+
   return pictures;
 };
 
@@ -158,6 +159,7 @@ var renderPictures = function (picturesList) {
   for (var i = 0; i < picturesList.length; i++) {
     picturesFragment.appendChild(createPicture(picturesList[i]));
   }
+
   return picturesFragment;
 };
 
@@ -166,7 +168,7 @@ pictureElement.appendChild(renderPictures(pictures));
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
  * @param {object} picture Объект с даннными о фото
- * @return {void} создает элемент модального окна .big-picture из первой фотки
+ * @return {element} создает элемент модального окна .big-picture
  */
 var createBigPicture = function (picture) {
   if (document.querySelector('.big-picture')) {
@@ -176,7 +178,8 @@ var createBigPicture = function (picture) {
   var bigPictureImg = cloneBigPicture.querySelector('.big-picture__img img');
   var likesCount = cloneBigPicture.querySelector('.likes-count');
   var commentsCount = cloneBigPicture.querySelector('.comments-count');
-  var socialComments = cloneBigPicture.querySelector('.social__comments').cloneNode();
+  var socialComments = cloneBigPicture.querySelector('.social__comments');
+  var socialComment = cloneBigPicture.querySelector('.social__comment').cloneNode(true);
   var socialButton = cloneBigPicture.querySelector('.social__comments-loader');
 
   bigPictureImg.src = picture.url;
@@ -184,23 +187,14 @@ var createBigPicture = function (picture) {
   commentsCount.textContent = picture.likes;
   cloneBigPicture.querySelector('.social__caption').textContent = picture.description;
 
+  socialComments.innerHTML = '';
+
   picture.comments.forEach(function (comment) {
-    var liComment = document.createElement('li');
-    var imgComment = document.createElement('img');
-    var pComment = document.createElement('p');
+    var newSocialComment = socialComment.cloneNode(true);
+    newSocialComment.querySelector('.social__picture').src = comment.avatar;
+    newSocialComment.querySelector('.social__text').textContent = comment.message;
 
-    liComment.classList.add('social__comment');
-    imgComment.classList.add('social__picture');
-    imgComment.src = comment.avatar;
-    imgComment.alt = 'Аватар комментатора фотографии';
-    imgComment.width = '35';
-    imgComment.height = '35';
-    pComment.classList.add('social__text');
-    pComment.textContent = comment.message;
-    liComment.append(imgComment);
-    liComment.append(pComment);
-
-    socialComments.appendChild(liComment);
+    socialComments.appendChild(newSocialComment);
   });
 
   socialButton.insertAdjacentElement('beforeBegin', socialComments);
@@ -223,7 +217,6 @@ var hiddenBigPicture = function () {
  *  Функция показывает модальное окно с большой фоткой
  *
  * @return {void} показывает модальное окно с большой фоткой
- *
  */
 var showBigPicture = function () {
   var picture = createBigPicture(pictures[0]);
@@ -234,7 +227,6 @@ var showBigPicture = function () {
 
   main.insertBefore(picture, null);
   picture.classList.remove('hidden');
-
 };
 
 var pictureImg = document.querySelector('.picture__img');
