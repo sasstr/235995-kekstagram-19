@@ -237,3 +237,34 @@ var pictureImg = document.querySelector('.picture__img');
 pictureImg.addEventListener('click', function () {
   showBigPicture();
 });
+
+var pin = document.querySelector('.effect-level__pin');
+var cancelButton = document.querySelector('.cancel');
+var scaleControlSmaller = document.querySelector('.scale__control--smaller');
+var scaleControlBigger = document.querySelector('.scale__control--bigger');
+var scaleControlValue = document.querySelector('.scale__control--value');
+var textHashtags = document.querySelector('.text__hashtags');
+var uploadFileInput = document.querySelector('#upload-file');
+
+uploadFileInput.addEventListener('click', function (evtUpload) {
+  evtUpload.preventDefault();
+  document.querySelector('.img-upload__overlay').classList.remove('hidden');
+});
+
+cancelButton.addEventListener('click', function (evtCancel) {
+  evtCancel.preventDefault();
+  document.querySelector('.img-upload__overlay').classList.add('hidden');
+});
+
+document.body.addEventListener('keyup', function (evtEsc) {
+  evtEsc.preventDefault();
+  if (evtEsc.key === 'Escape') {
+    document.querySelector('.img-upload__overlay').classList.add('hidden');
+  }
+});
+
+pin.addEventListener('mouseup', function (evtPin) {
+  evtPin.preventDefault();
+
+});
+
