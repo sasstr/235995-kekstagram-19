@@ -42,11 +42,21 @@ var names = [
   'Дима',
   'Коля'
 ];
-var pictureElement = document.querySelector('.pictures');
+var pictureContainer = document.querySelector('.pictures');
 var main = document.querySelector('main');
+// Забираем шаблон для Большой фотки
 var bigPicture = document.querySelector('#big-picture')
   .content
   .querySelector('.big-picture');
+
+var imageUpload = document.querySelector('.img-upload');
+
+// Забираем шаблон для формы загрузки фото
+var imageUploadForm = document.querySelector('#img-upload__form')
+.content
+.querySelector('.img-upload__form');
+
+imageUpload.appendChild(imageUploadForm);
 
 /**
  * Функция возращает случайное целое число между min и max - включительно
@@ -163,7 +173,7 @@ var renderPictures = function (picturesList) {
   return picturesFragment;
 };
 
-pictureElement.appendChild(renderPictures(pictures));
+pictureContainer.appendChild(renderPictures(pictures));
 
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
@@ -251,15 +261,22 @@ uploadFileInput.addEventListener('click', function (evtUpload) {
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
 });
 
+uploadFileInput.addEventListener('change', function (evtCancel) {
+  evtCancel.preventDefault();
+  document.querySelector('.img-upload__overlay').classList.remove('hidden');
+});
+
 cancelButton.addEventListener('click', function (evtCancel) {
   evtCancel.preventDefault();
   document.querySelector('.img-upload__overlay').classList.add('hidden');
+  imageUploadForm.reset();
 });
 
 document.body.addEventListener('keyup', function (evtEsc) {
   evtEsc.preventDefault();
   if (evtEsc.key === 'Escape') {
     document.querySelector('.img-upload__overlay').classList.add('hidden');
+    imageUploadForm.reset();
   }
 });
 
