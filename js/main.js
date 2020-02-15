@@ -249,6 +249,7 @@ pictureImg.addEventListener('click', function () {
 });
 
 var pin = document.querySelector('.effect-level__pin');
+var effectlevelLine = document.querySelector('.effect-level__line');
 var cancelButton = document.querySelector('.cancel');
 var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
@@ -261,8 +262,8 @@ uploadFileInput.addEventListener('click', function (evtUpload) {
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
 });
 
-uploadFileInput.addEventListener('change', function (evtCancel) {
-  evtCancel.preventDefault();
+uploadFileInput.addEventListener('change', function (evtChange) {
+  evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
 });
 
@@ -282,6 +283,8 @@ document.body.addEventListener('keyup', function (evtEsc) {
 
 pin.addEventListener('mouseup', function (evtPin) {
   evtPin.preventDefault();
-
+  // Получаем длину родителя ползунка в переделах которого он должен перемещаться
+  var effectlevelLineWidth = effectlevelLine.offsetWidth;
+  var pinCoordinate = evtPin.clientX;
 });
 
