@@ -325,13 +325,6 @@ pin.addEventListener('mouseup', onPinMouseUp);
 var textHashtags = document.querySelector('.text__hashtags');
 var errors = new Set();
 
-// Функция проверяет состоит ли хэштег из пробелов.
-var checkEmptyHashtag = function (hashtags, noEmptyHashtags) {
-  if (noEmptyHashtags.length !== hashtags.length) {
-    errors.add('Не может быть хэштегов состоящих только из пробелов!');
-  }
-};
-
 // Функция преобразует введенные пользователем хэштеги в массив хэштегов
 var getHashtags = function (inputHashtags) {
   var hashtags = inputHashtags.split(' ');
@@ -340,19 +333,23 @@ var getHashtags = function (inputHashtags) {
     return -1;
   }
 
-  var noEmptyHashtags = hashtags.filter(function (hashtag) {
-    return hashtag.trim() !== '';
-  });
-  checkEmptyHashtag(hashtags, noEmptyHashtags);
-
-  return noEmptyHashtags;
+  return hashtags;
 };
+
 // Получаем массив хэштегов
 var hashtagsArray = getHashtags(textHashtags);
 
 // Функция валидирует правильность введенных хэштегов
 var checkHashtags = function (hashtags) {
   var checkedHashtags = new Set();
+
+  var noEmptyHashtags = hashtags.filter(function (hashtag) {
+    return hashtag.trim() !== '';
+  });
+
+  if (noEmptyHashtags.length !== hashtags.length) {
+    errors.add('Не может быть хэштегов состоящих только из пробелов!');
+  }
 
   if (hashtags.length > 5) {
     errors.add('Хэштегов не может быть больше пяти!');
