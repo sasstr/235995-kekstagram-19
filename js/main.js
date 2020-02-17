@@ -239,7 +239,6 @@ var showBigPicture = function () {
   main.insertBefore(picture, null);
   picture.classList.remove('hidden');
 };
-
 document.body.classList.add('modal-open');
 
 var pictureImg = document.querySelector('.picture__img');
@@ -249,13 +248,16 @@ pictureImg.addEventListener('click', function () {
 });
 
 var pin = document.querySelector('.effect-level__pin');
-var effectlevelLine = document.querySelector('.effect-level__line');
+var effectLevelLine = document.querySelector('.effect-level__line');
+var effectLevelDepth = document.querySelector('.effect-level__depth');
+var effectLevelValue = document.querySelector('.effect-level__value');
 var cancelButton = document.querySelector('.cancel');
 var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
 var scaleControlValue = document.querySelector('.scale__control--value');
-var textHashtags = document.querySelector('.text__hashtags');
 var uploadFileInput = document.querySelector('#upload-file');
+
+pin.style.cursor = 'pointer';
 
 uploadFileInput.addEventListener('click', function (evtUpload) {
   evtUpload.preventDefault();
@@ -281,10 +283,128 @@ document.body.addEventListener('keyup', function (evtEsc) {
   }
 });
 
-pin.addEventListener('mouseup', function (evtPin) {
-  evtPin.preventDefault();
-  // Получаем длину родителя ползунка в переделах которого он должен перемещаться
-  var effectlevelLineWidth = effectlevelLine.offsetWidth;
-  var pinCoordinate = evtPin.clientX;
-});
+var onPinMouseMove = function (evtMove) {
+  evtMove.preventDefault();
+  // Получаем ширину ползунка
+  var pinWidthShift = pin.offsetWidth / 2;
+  // Получаем ширину контейнера для ползунка
+  var lineWidth = effectLevelLine.offsetWidth;
+  // Получаем начальные координаты ползунка
+  var coordStartX = evtMove.clientX;
+  // Получаем координаты смещения по X
+  var shiftCoord = coordStartX - evtMove.clientX;
 
+  // Получаем длину родителя ползунка в переделах которого он должен перемещаться
+  var PinLimit = {
+    MIN: pin.offsetLeft - pinWidthShift,
+    MAX: pin.offsetLeft + lineWidth + pinWidthShift,
+  };
+  // Получаем новые координаты ползунка по X
+  var pinCoordX = pin.offsetLeft - shiftCoord;
+  // Получаем новый % на который попал ползунок
+  var pinLocation = pinCoordX / lineWidth;
+
+  if (pinCoordX > PinLimit.MIN || pinCoordX < PinLimit.MAX) {
+    pin.style.left = pinCoordX + 'px';
+    effectLevelDepth.style.width = pinLocation * 100 + '%';
+    effectLevelValue.value = Math.trunc(pinLocation * 100);
+  }
+};
+
+pin.addEventListener('mousemove', onPinMouseMove);
+
+var onPinMouseUp = function (evtUp) {
+  evtUp.preventDefault();
+  pin.removeEventListener('mousemove', onPinMouseMove);
+};
+
+pin.addEventListener('mouseup', onPinMouseUp);
+
+// Валидация хэштегов
+
+var textHashtags = document.querySelector('.text__hashtags');
+var errors = new Set();
+
+// Функция проверяет состоит ли хэштег из пробелов.
+var checkEmptyHashtag = function (hashtags, noEmptyHashtags) {
+  if (noEmptyHashtags.length !== hashtags.length) {
+    errors.add('Не может быть хэштегов состоящих только из пробелов!');
+  }
+};
+
+// Функция преобразует введенные пользователем хэштеги в массив хэштегов
+var getHashtags = function (inputHashtags) {
+  var hashtags = inputHashtags.split(' ');
+
+  if (hashtags.length === 0) {
+    return -1;
+  }
+
+  var noEmptyHashtags = hashtags.filter(function (hashtag) {
+    return hashtag.trim() !== '';
+  });
+  checkEmptyHashtag(hashtags, noEmptyHashtags);
+
+  return noEmptyHashtags;
+};
+// Получаем массив хэштегов
+var hashtagsArray = getHashtags(textHashtags);
+
+// Функция валидирует правильность введенных хэштегов
+var checkHashtags = function (hashtags) {
+  var checkedHashtags = new Set();
+
+  if (hashtags.length > 5) {
+    errors.add('Хэштегов не может быть больше пяти!');
+  }
+  hashtags.forEach(function (hashtag) {
+    hashtag.toLowerCase();
+    if (!hashtag.startsWith('#')) {
+      errors.add('Вы должны начинать название хэштега не с #');
+    }
+    if (hashtag.length > 20) {
+      errors.add('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
+    }
+    if (hashtag.length === 1) {
+      errors.add('Хэштег не может состоять из одного символа');
+    }
+    checkedHashtags.add(hashtag);
+  });
+  if (checkedHashtags.length !== hashtags.length) {
+    errors.add('Не может быть одинаковых хэштегов!');
+  }
+
+  return errors;
+};
+
+/*
+2.3. Хэш-теги:
+хэш-тег начинается с символа # (решётка); +++
+
+строка после решётки должна состоять из букв и чисел и
+не может содержать пробелы, спецсимволы (#, @, $ и т.п.),
+символы пунктуации (тире, дефис, запятая и т.п.), эмодзи и т.д.; ---
+
+хеш-тег не может состоять только из одной решётки; +++
+
+максимальная длина одного хэш-тега 20 символов, включая решётку; +++
+
+хэш-теги нечувствительны к регистру: #ХэшТег и #хэштег  +++
+считаются одним и тем же тегом;
+
+хэш-теги разделяются пробелами; +++
+
+один и тот же хэш-тег не может быть использован дважды; +++
+
+нельзя указать больше пяти хэш-тегов; +++
+
+хэш-теги необязательны; ---
+
+===========================================================
+если фокус находится в поле ввода хэш-тега, нажатие
+на Esc не должно приводить к закрытию формы редактирования изображения.
+
+===========================================================
+Сообщения о неправильном формате хэштега задаются
+с помощью метода setCustomValidity у соответствующего поля.
+*/
