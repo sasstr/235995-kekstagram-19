@@ -1,6 +1,11 @@
 'use strict';
 
 var AMOUNT_OF_PHOTOS = 25;
+var HASHTAGS_MAX_AMOUNT = 5;
+var HashtagsSymbolsAmount = {
+  MAX: 20,
+  MIN: 2
+};
 var comments = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -328,11 +333,11 @@ var textHashtags = document.querySelector('.text__hashtags');
 var getHashtags = function (inputHashtags) {
   var hashtags = inputHashtags.split(' ');
 
-  if (hashtags.length === 0) {
-    return -1;
+  if (hashtags.length !== 0) {
+    return hashtags;
   }
 
-  return hashtags;
+  return -1;
 };
 
 // Получаем массив хэштегов
@@ -343,6 +348,10 @@ var checkHashtags = function (hashtags) {
   var checkedHashtags = new Set();
   var errors = new Set();
 
+  if (hashtags === -1) {
+    return errors;
+  }
+
   var noEmptyHashtags = hashtags.filter(function (hashtag) {
     return hashtag.trim() !== '';
   });
@@ -351,7 +360,7 @@ var checkHashtags = function (hashtags) {
     errors.add('Не может быть хэштегов состоящих только из пробелов!');
   }
 
-  if (hashtags.length > 5) {
+  if (hashtags.length > HASHTAGS_MAX_AMOUNT) {
     errors.add('Хэштегов не может быть больше пяти!');
   }
   hashtags.forEach(function (hashtag) {
@@ -359,10 +368,10 @@ var checkHashtags = function (hashtags) {
     if (!hashtag.startsWith('#')) {
       errors.add('Вы должны начинать название хэштега не с #');
     }
-    if (hashtag.length > 20) {
+    if (hashtag.length > HashtagsSymbolsAmount.MAX) {
       errors.add('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
     }
-    if (hashtag.length === 1) {
+    if (hashtag.length < HashtagsSymbolsAmount.MIN) {
       errors.add('Хэштег не может состоять из одного символа');
     }
     checkedHashtags.add(hashtag);
@@ -373,6 +382,16 @@ var checkHashtags = function (hashtags) {
 
   return errors;
 };
+// Функция выводит ошибки при вводе хэштегов
+var showErrors = function (errorsSet) {
+  var errrorMessages = Array.from(errorsSet);
+  if (errrorMessages.length !== 0) {
+    textHashtags.setCustomValidity(errrorMessages.join(' \n'));
+  }
+};
+
+// Валидируем хэштеги и выводим ошибки.
+showErrors(checkHashtags(hashtagsArray));
 
 /*
 2.3. Хэш-теги:
