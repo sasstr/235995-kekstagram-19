@@ -323,7 +323,6 @@ pin.addEventListener('mouseup', onPinMouseUp);
 // Валидация хэштегов
 
 var textHashtags = document.querySelector('.text__hashtags');
-var errors = new Set();
 
 // Функция преобразует введенные пользователем хэштеги в массив хэштегов
 var getHashtags = function (inputHashtags) {
@@ -342,6 +341,7 @@ var hashtagsArray = getHashtags(textHashtags);
 // Функция валидирует правильность введенных хэштегов
 var checkHashtags = function (hashtags) {
   var checkedHashtags = new Set();
+  var errors = new Set();
 
   var noEmptyHashtags = hashtags.filter(function (hashtag) {
     return hashtag.trim() !== '';
