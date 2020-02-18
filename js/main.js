@@ -2,8 +2,12 @@
 
 var AMOUNT_OF_PHOTOS = 25;
 var HASHTAGS_MAX_AMOUNT = 5;
+var HASHTAG_REG_EXP = /^([#]{1})([A-Za-zА-ЯЁа-яё0-9]{1,19})$/g;
+var HASHTAG_REG_EXP_1 = /^#[a-z0-9а-яё]+$/gi;  // @TODO переделать регулярку
+var ENTER_KEY = 13;
+var ESCAPE_KEY = 27;
 var HashtagsSymbolsAmount = {
-  MAX: 20,
+  MAX: 19,
   MIN: 2
 };
 var comments = [
@@ -339,6 +343,20 @@ var getHashtags = function (inputHashtags) {
 
   return -1;
 };
+// Функция убирает все дубликаты из массива.
+
+// !!!@TODO Можно вместо new Set() сделать эту функцию.
+var removeDuplicate = function (array) {
+  var result = [];
+
+  array.forEach(function (item) {
+    if (!result.includes(item)) {
+      result.push(item);
+    }
+  });
+
+  return result;
+};
 
 // Получаем массив хэштегов
 var hashtagsArray = getHashtags(textHashtags);
@@ -346,7 +364,7 @@ var hashtagsArray = getHashtags(textHashtags);
 // Функция валидирует правильность введенных хэштегов
 var checkHashtags = function (hashtags) {
   var checkedHashtags = new Set();
-  var errors = new Set();
+  var errors = new Set(); // Можно в цикле убирать конечно повторы, но это как то странно
 
   if (hashtags === -1) {
     return errors;
@@ -366,7 +384,7 @@ var checkHashtags = function (hashtags) {
   hashtags.forEach(function (hashtag) {
     hashtag.toLowerCase();
     if (!hashtag.startsWith('#')) {
-      errors.add('Вы должны начинать название хэштега не с #');
+      errors.add('Вы должны начинать название хэштега с #');
     }
     if (hashtag.length > HashtagsSymbolsAmount.MAX) {
       errors.add('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
