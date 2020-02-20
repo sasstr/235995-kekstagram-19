@@ -286,7 +286,7 @@ var getScaleValue = function () {
 // Функция возращает увеличеное значение маштаба
 var addScale = function () {
   var currentValue = getScaleValue();
-  return currentValue < Scale.MAX && currentValue + Scale.STEP <= Scale.MAX ?
+  return currentValue + Scale.STEP <= Scale.MAX ?
     currentValue + Scale.STEP
     :
     Scale.MAX;
@@ -294,7 +294,7 @@ var addScale = function () {
 // Функция возращает уменьшенное значение маштаба
 var subtractScale = function () {
   var currentValue = getScaleValue();
-  return currentValue > Scale.MIN && currentValue - Scale.STEP >= Scale.MIN ?
+  return currentValue - Scale.STEP >= Scale.MIN ?
     currentValue - Scale.STEP
     :
     Scale.MIN;
