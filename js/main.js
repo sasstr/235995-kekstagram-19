@@ -3,9 +3,16 @@
 var AMOUNT_OF_PHOTOS = 25;
 var HASHTAGS_MAX_AMOUNT = 5;
 var HASHTAG_REG_EXP = /^([#]{1})([A-Za-zА-ЯЁа-яё0-9]{1,19})$/g;
-var HASHTAG_REG_EXP_1 = /^#[a-z0-9а-яё]+$/gi;  // @TODO переделать регулярку
+var HASHTAG_REG_EXP_1 = /^[a-z0-9а-яё]+$/gi; // @TODO переделать регулярку
 var ENTER_KEY = 13;
 var ESCAPE_KEY = 27;
+var Scale = {
+  MIN: 25,
+  MAX: 100,
+  DEFAULT: 100,
+  STEP: 25
+};
+
 var HashtagsSymbolsAmount = {
   MAX: 19,
   MIN: 2
@@ -265,6 +272,27 @@ var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
 var scaleControlValue = document.querySelector('.scale__control--value');
 var uploadFileInput = document.querySelector('#upload-file');
+var imgUploadPreview = document.querySelector('.img-upload__preview img');
+
+// Функция установит значение маштаба картинки
+var setImageScalelValue = function (value) {
+  imgUploadPreview.setAttribute('style', 'transform: scale(' + (value / 100) + ');');
+};
+
+// Функция возращает значение поля маштаба картинки
+var getScaleValue = function () {
+  return parseInt(scaleControlValue.value, 10);
+};
+// Функция возращает увеличеное значение маштаба
+var addScale = function () {
+  var currentValue = getScaleValue();
+  return currentValue < Scale.MAX ? currentValue + Scale.STEP : currentValue;
+};
+// Функция возращает уменьшенное значение маштаба
+var subtractScale = function () {
+  var currentValue = getScaleValue();
+  return currentValue > Scale.MIN ? currentValue - Scale.STEP : currentValue;
+};
 
 pin.style.cursor = 'pointer';
 
@@ -272,7 +300,7 @@ uploadFileInput.addEventListener('click', function (evtUpload) {
   evtUpload.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
 });
-
+// Не работает совсем. Просто игнорится.@TODO !!! Понять в чем тут дело.
 uploadFileInput.addEventListener('change', function (evtChange) {
   evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
@@ -335,7 +363,7 @@ var textHashtags = document.querySelector('.text__hashtags');
 
 // Функция преобразует введенные пользователем хэштеги в массив хэштегов
 var getHashtags = function (inputHashtags) {
-  var hashtags = inputHashtags.split(' ');
+  var hashtags = inputHashtags.value.split(' ');
 
   if (hashtags.length !== 0) {
     return hashtags;
@@ -344,8 +372,6 @@ var getHashtags = function (inputHashtags) {
   return -1;
 };
 // Функция убирает все дубликаты из массива.
-
-// !!!@TODO Можно вместо new Set() сделать эту функцию.
 var removeDuplicate = function (array) {
   var result = [];
 
@@ -359,12 +385,12 @@ var removeDuplicate = function (array) {
 };
 
 // Получаем массив хэштегов
-var hashtagsArray = getHashtags(textHashtags);
+var hashtagsArray = getHashtags(textHashtags) || [];
 
 // Функция валидирует правильность введенных хэштегов
 var checkHashtags = function (hashtags) {
-  var checkedHashtags = new Set();
-  var errors = new Set(); // Можно в цикле убирать конечно повторы, но это как то странно
+  var checkedHashtags = [];
+  var errors = []; // Можно в цикле убирать конечно повторы, но это как то странно
 
   if (hashtags === -1) {
     return errors;
@@ -375,36 +401,36 @@ var checkHashtags = function (hashtags) {
   });
 
   if (noEmptyHashtags.length !== hashtags.length) {
-    errors.add('Не может быть хэштегов состоящих только из пробелов!');
+    errors.push('Не может быть хэштегов состоящих только из пробелов!');
   }
 
   if (hashtags.length > HASHTAGS_MAX_AMOUNT) {
-    errors.add('Хэштегов не может быть больше пяти!');
+    errors.push('Хэштегов не может быть больше пяти!');
   }
   hashtags.forEach(function (hashtag) {
     hashtag.toLowerCase();
     if (!hashtag.startsWith('#')) {
-      errors.add('Вы должны начинать название хэштега с #');
+      errors.push('Вы должны начинать название хэштега с #');
     }
     if (hashtag.length > HashtagsSymbolsAmount.MAX) {
-      errors.add('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
+      errors.push('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
     }
     if (hashtag.length < HashtagsSymbolsAmount.MIN) {
-      errors.add('Хэштег не может состоять из одного символа');
+      errors.push('Хэштег не может состоять из одного символа');
     }
-    checkedHashtags.add(hashtag);
+    checkedHashtags.push(hashtag);
   });
-  if (checkedHashtags.length !== hashtags.length) {
-    errors.add('Не может быть одинаковых хэштегов!');
+  if (removeDuplicate(checkedHashtags).length !== hashtags.length) {
+    errors.push('Не может быть одинаковых хэштегов!');
   }
 
-  return errors;
+  return removeDuplicate(errors);
 };
 // Функция выводит ошибки при вводе хэштегов
 var showErrors = function (errorsSet) {
-  var errrorMessages = Array.from(errorsSet);
-  if (errrorMessages.length !== 0) {
-    textHashtags.setCustomValidity(errrorMessages.join(' \n'));
+  var errorMessages = Array.from(errorsSet);
+  if (errorMessages.length !== 0) {
+    textHashtags.setCustomValidity(errorMessages.join(' \n'));
   }
 };
 
