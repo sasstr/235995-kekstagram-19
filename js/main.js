@@ -281,13 +281,22 @@ var setImageScalelValue = function (value) {
 
 // Функция возращает значение поля маштаба картинки
 var getScaleValue = function () {
-  return parseInt(scaleControlValue.value, 10);
+  var currentValue = parseInt(scaleControlValue.value, 10);
+  var modulo = currentValue % Scale.STEP;
+  if (currentValue % Scale.STEP !== 0 ) {
+    return currentValue % Scale.STEP > Scale.STEP / 2 ?
+      currentValue + (Scale.STEP - modulo)
+      :
+      currentValue - modulo;
+  }
+  return currentValue;
 };
 // Функция возращает увеличеное значение маштаба
 var addScale = function () {
   var currentValue = getScaleValue();
-  return currentValue + Scale.STEP <= Scale.MAX ?
-    currentValue + Scale.STEP
+  var nextScale = currentValue + Scale.STEP;
+  return nextScale < Scale.MAX ?
+    nextScale
     :
     Scale.MAX;
 };
@@ -299,6 +308,23 @@ var subtractScale = function () {
     :
     Scale.MIN;
 };
+// Функция обработчик события клик на кнопке уменьшения маштаба картинки
+var onScaleControlSmallerClick = function () {
+  var smallerValue = subtractScale();
+  scaleControlValue.value = smallerValue + '%';
+  setImageScalelValue(smallerValue);
+};
+
+scaleControlSmaller.addEventListener('click', onScaleControlSmallerClick);
+
+// Функция обработчик события клик на кнопке увеличения маштаба картинки
+var onScaleControlBiggerClick = function () {
+  var biggerValue = addScale();
+  scaleControlValue.value = biggerValue + '%';
+  setImageScalelValue(biggerValue);
+};
+
+scaleControlBigger.addEventListener('click', onScaleControlBiggerClick);
 
 pin.style.cursor = 'pointer';
 
