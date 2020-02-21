@@ -416,9 +416,6 @@ var removeDuplicate = function (array) {
   return result;
 };
 
-// Получаем массив хэштегов
-var hashtagsArray = getHashtags(textHashtags) || [];
-
 // Функция валидирует правильность введенных хэштегов
 var checkHashtags = function (hashtags) {
   var checkedHashtags = [];
@@ -458,16 +455,22 @@ var checkHashtags = function (hashtags) {
 
   return removeDuplicate(errors);
 };
+
 // Функция выводит ошибки при вводе хэштегов
-var showErrors = function (errorsSet) {
-  var errorMessages = Array.from(errorsSet);
-  if (errorMessages.length !== 0) {
-    textHashtags.setCustomValidity(errorMessages.join(' \n'));
+var showErrors = function (errors) {
+  if (errors.length !== 0) {
+    textHashtags.setCustomValidity(errors.join(' \n'));
   }
 };
 
-// Валидируем хэштеги и выводим ошибки.
-showErrors(checkHashtags(hashtagsArray));
+var onHashtagsInputKyeup = function () {
+  // Получаем массив хэштегов
+  var hashtagsArray = getHashtags(textHashtags) || [];
+  var errors = checkHashtags(hashtagsArray);
+  showErrors(errors);
+};
+
+textHashtags.addEventListener('keyup', onHashtagsInputKyeup);
 
 /*
 2.3. Хэш-теги:
