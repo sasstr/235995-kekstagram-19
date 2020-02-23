@@ -70,7 +70,7 @@ var imageUpload = document.querySelector('.img-upload');
 // Забираем шаблон для формы загрузки фото
 var imageUploadForm = document.querySelector('#img-upload__form')
 .content
-.querySelector('.img-upload__form');
+.querySelector('.img-upload__overlay');
 
 imageUpload.appendChild(imageUploadForm);
 
@@ -263,17 +263,56 @@ pictureImg.addEventListener('click', function () {
   showBigPicture();
 });
 
+var imgUploadPreview = document.querySelector('.img-upload__preview');
 var pin = document.querySelector('.effect-level__pin');
 var effectLevelLine = document.querySelector('.effect-level__line');
 var effectLevelDepth = document.querySelector('.effect-level__depth');
 var effectLevelValue = document.querySelector('.effect-level__value');
+var imgUploadEffects = document.querySelector('.img-upload__effects');
+
+// Функция удаляет классы, которые делают эффекты активными
+var removeEffect = function () {
+  imgUploadPreview.classList.forEach(function (classItem) {
+    if (classItem.match('effects__preview')) {
+      imgUploadPreview.classList.remove(classItem);
+    }
+  });
+};
+
+var showEffect = function (elements) {
+  var element = Array.from(elements).find(function (currentInput) {
+    return currentInput.checked ? currentInput : '';
+  });
+
+  var effectsList = {
+    'effect-none': 'effects__preview--none',
+    'effect-chrome': 'effects__preview--chrome',
+    'effect-sepia': 'effects__preview--sepia',
+    'effect-marvin': 'effects__preview--marvin',
+    'effect-phobos': 'effects__preview--phobos',
+    'effect-heat': 'effects__preview--heat',
+  };
+
+  imgUploadPreview.classList.add(effectsList[element.id]);
+};
+
+
+// Функция обработчик события смены фильтра на картинке по клику.
+var onEffectChange = function (evtEffect) {
+  evtEffect.preventDefault();
+  removeEffect();
+  showEffect(evtEffect.currentTarget.elements);
+};
+
+imgUploadEffects.addEventListener('change', onEffectChange);
+
 var cancelButton = document.querySelector('.cancel');
 var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
 var scaleControlValue = document.querySelector('.scale__control--value');
 var uploadFileInput = document.querySelector('#upload-file');
-var imgUploadPreview = document.querySelector('.img-upload__preview img');
 
+scaleControlValue.value = '100%';
 // Функция установит значение маштаба картинки
 var setImageScalelValue = function (value) {
   imgUploadPreview.setAttribute('style', 'transform: scale(' + (value / 100) + ');');
@@ -332,11 +371,11 @@ uploadFileInput.addEventListener('click', function (evtUpload) {
   evtUpload.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
 });
-// Не работает совсем. Просто игнорится.@TODO !!! Понять в чем тут дело.
-uploadFileInput.addEventListener('change', function (evtChange) {
+
+/* uploadFileInput.addEventListener('change', function (evtChange) {
   evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
-});
+}); */
 
 cancelButton.addEventListener('click', function (evtCancel) {
   evtCancel.preventDefault();
@@ -395,13 +434,13 @@ var textHashtags = document.querySelector('.text__hashtags');
 
 // Функция преобразует введенные пользователем хэштеги в массив хэштегов
 var getHashtags = function (inputHashtags) {
-  var hashtags = inputHashtags.value.split(' ');
+  var hashtags = inputHashtags.value.toLowerCase.split(' ');
 
   if (hashtags.length !== 0) {
     return hashtags;
   }
 
-  return -1;
+  return 0;
 };
 // Функция убирает все дубликаты из массива.
 var removeDuplicate = function (array) {
@@ -421,7 +460,7 @@ var checkHashtags = function (hashtags) {
   var checkedHashtags = [];
   var errors = []; // Можно в цикле убирать конечно повторы, но это как то странно
 
-  if (hashtags === -1) {
+  if (hashtags === 0) {
     return errors;
   }
 
@@ -463,7 +502,8 @@ var showErrors = function (errors) {
   }
 };
 
-var onHashtagsInputKyeup = function () {
+var onHashtagsInputKyeup = function (evtInput) {
+  evtInput.preventDefault();
   // Получаем массив хэштегов
   var hashtagsArray = getHashtags(textHashtags) || [];
   var errors = checkHashtags(hashtagsArray);

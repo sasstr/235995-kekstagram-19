@@ -33,8 +33,21 @@
 
       <!-- Здесь будет формы для загрузки нового изображения на сайт -->
 
+        <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" autocomplete="off">
+
+          <!-- Изначальное состояние поля для загрузки изображения -->
+          <fieldset class="img-upload__start">
+            <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
+            <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
+          </fieldset>
+
+          <!-- Форма редактирования изображения -->
+
+        </form>
+
         </div>
       </section>
+
 
       <!-- Здесь будут изображения других пользователей id="img-upload__form" -->
 
@@ -145,13 +158,6 @@
 
   <!-- Шаблон формы для загрузки нового изображения на сайт -->
   <template id="img-upload__form">
-    <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" autocomplete="off">
-
-      <!-- Изначальное состояние поля для загрузки изображения -->
-      <fieldset class="img-upload__start">
-        <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
-        <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
-      </fieldset>
 
       <!-- Форма редактирования изображения -->
       <div class="img-upload__overlay  hidden">
@@ -241,7 +247,6 @@
           <button type="submit" class="img-upload__submit" id="upload-submit">Опубликовать</button>
         </div>
       </div>
-    </form>
   </template>
 
   <script src="/js/main.js"></script>
