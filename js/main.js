@@ -265,10 +265,13 @@ pictureImg.addEventListener('click', function () {
 
 var imgUploadPreview = document.querySelector('.img-upload__preview');
 var pin = document.querySelector('.effect-level__pin');
+var effectLevel = document.querySelector('.effect-level');
 var effectLevelLine = document.querySelector('.effect-level__line');
 var effectLevelDepth = document.querySelector('.effect-level__depth');
 var effectLevelValue = document.querySelector('.effect-level__value');
 var imgUploadEffects = document.querySelector('.img-upload__effects');
+
+effectLevel.classList.add('hidden');
 
 // Функция удаляет классы, которые делают эффекты активными
 var removeEffect = function () {
@@ -279,27 +282,37 @@ var removeEffect = function () {
   });
 };
 
-var showEffect = function (elements) {
-  var element = Array.from(elements).find(function (currentInput) {
-    return currentInput.checked ? currentInput : '';
-  });
-
-  var effectsList = {
-    'effect-none': 'effects__preview--none',
-    'effect-chrome': 'effects__preview--chrome',
-    'effect-sepia': 'effects__preview--sepia',
-    'effect-marvin': 'effects__preview--marvin',
-    'effect-phobos': 'effects__preview--phobos',
-    'effect-heat': 'effects__preview--heat',
-  };
-
-  imgUploadPreview.classList.add(effectsList[element.id]);
+var effectsList = {
+  'effect-none': 'effects__preview--none',
+  'effect-chrome': 'effects__preview--chrome',
+  'effect-sepia': 'effects__preview--sepia',
+  'effect-marvin': 'effects__preview--marvin',
+  'effect-phobos': 'effects__preview--phobos',
+  'effect-heat': 'effects__preview--heat',
 };
 
+var showEffect = function (elements) {
+  var checkedInput = Array.from(elements).find(function (currentInput) {
+    return currentInput.checked;
+  });
+  if (checkedInput.id === 'effect-none') {
+    effectLevel.classList.add('hidden');
+  } else {
+    effectLevel.classList.remove('hidden');
+  }
+  imgUploadPreview.classList.add(effectsList[checkedInput.id]);
+};
+var scaleControlValue = document.querySelector('.scale__control--value');
+
+var setScaleDefaultValue = function () {
+  scaleControlValue.value = '100%';
+  imgUploadPreview.setAttribute('style', 'transform: scale(1);');
+};
 
 // Функция обработчик события смены фильтра на картинке по клику.
 var onEffectChange = function (evtEffect) {
   evtEffect.preventDefault();
+  setScaleDefaultValue();
   removeEffect();
   showEffect(evtEffect.currentTarget.elements);
 };
@@ -309,7 +322,7 @@ imgUploadEffects.addEventListener('change', onEffectChange);
 var cancelButton = document.querySelector('.cancel');
 var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
-var scaleControlValue = document.querySelector('.scale__control--value');
+
 var uploadFileInput = document.querySelector('#upload-file');
 
 scaleControlValue.value = '100%';
@@ -380,7 +393,7 @@ uploadFileInput.addEventListener('click', function (evtUpload) {
 cancelButton.addEventListener('click', function (evtCancel) {
   evtCancel.preventDefault();
   document.querySelector('.img-upload__overlay').classList.add('hidden');
-  imageUploadForm.reset();
+  // imageUploadForm.reset();
 });
 
 document.body.addEventListener('keyup', function (evtEsc) {
@@ -391,28 +404,40 @@ document.body.addEventListener('keyup', function (evtEsc) {
   }
 });
 
-var onPinMouseMove = function (evtMove) {
-  evtMove.preventDefault();
+var onPinMousedown = function (evtDown) {
+  evtDown.preventDefault();
   // Получаем ширину ползунка
   var pinWidthShift = pin.offsetWidth / 2;
   // Получаем ширину контейнера для ползунка
   var lineWidth = effectLevelLine.offsetWidth;
   // Получаем начальные координаты ползунка
+  var coordStartX = evtDown.clientX;
+};
+
+var onPinMouseMove = function (evtMove) {
+  evtMove.preventDefault();
+  var pinWidthShift = pin.offsetWidth / 2;
+  // Получаем ширину контейнера для ползунка
+  var lineWidth = effectLevelLine.offsetWidth;
+  // Получаем начальные координаты ползунка
   var coordStartX = evtMove.clientX;
+
   // Получаем координаты смещения по X
   var shiftCoord = coordStartX - evtMove.clientX;
 
   // Получаем длину родителя ползунка в переделах которого он должен перемещаться
   var PinLimit = {
-    MIN: pin.offsetLeft - pinWidthShift,
-    MAX: pin.offsetLeft + lineWidth + pinWidthShift,
+    MIN: effectLevelLine.offsetLeft - pinWidthShift,
+    MAX: effectLevelLine.offsetLeft + lineWidth + pinWidthShift,
   };
   // Получаем новые координаты ползунка по X
   var pinCoordX = pin.offsetLeft - shiftCoord;
   // Получаем новый % на который попал ползунок
   var pinLocation = pinCoordX / lineWidth;
 
-  if (pinCoordX > PinLimit.MIN || pinCoordX < PinLimit.MAX) {
+  coordStartX = evtMove.clientX;
+
+  if (pinCoordX > PinLimit.MIN && pinCoordX < PinLimit.MAX) {
     pin.style.left = pinCoordX + 'px';
     effectLevelDepth.style.width = pinLocation * 100 + '%';
     effectLevelValue.value = Math.trunc(pinLocation * 100);
@@ -434,7 +459,8 @@ var textHashtags = document.querySelector('.text__hashtags');
 
 // Функция преобразует введенные пользователем хэштеги в массив хэштегов
 var getHashtags = function (inputHashtags) {
-  var hashtags = inputHashtags.value.toLowerCase.split(' ');
+  var hashtags = inputHashtags.value.toLowerCase();
+  hashtags = hashtags.split(' ');
 
   if (hashtags.length !== 0) {
     return hashtags;
@@ -486,6 +512,9 @@ var checkHashtags = function (hashtags) {
     if (hashtag.length < HashtagsSymbolsAmount.MIN) {
       errors.push('Хэштег не может состоять из одного символа');
     }
+    if (!hashtag.match(HASHTAG_REG_EXP)) {
+      errors.push('Хеш-тег может состоять только из букв и цифр.');
+    }
     checkedHashtags.push(hashtag);
   });
   if (removeDuplicate(checkedHashtags).length !== hashtags.length) {
@@ -505,12 +534,18 @@ var showErrors = function (errors) {
 var onHashtagsInputKyeup = function (evtInput) {
   evtInput.preventDefault();
   // Получаем массив хэштегов
+};
+
+var onHashtagsInputInvalid = function () {
   var hashtagsArray = getHashtags(textHashtags) || [];
   var errors = checkHashtags(hashtagsArray);
+  console.log(errors);
   showErrors(errors);
 };
 
 textHashtags.addEventListener('keyup', onHashtagsInputKyeup);
+
+// textHashtags.addEventListener('invalid', onHashtagsInputInvalid);
 
 /*
 2.3. Хэш-теги:
