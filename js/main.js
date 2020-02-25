@@ -65,14 +65,14 @@ var bigPicture = document.querySelector('#big-picture')
   .content
   .querySelector('.big-picture');
 
-var imageUpload = document.querySelector('.img-upload');
+var uploadЫelectImage = document.querySelector('#upload-select-image');
 
 // Забираем шаблон для формы загрузки фото
 var imageUploadForm = document.querySelector('#img-upload__form')
 .content
 .querySelector('.img-upload__overlay');
 
-imageUpload.appendChild(imageUploadForm);
+uploadЫelectImage.appendChild(imageUploadForm);
 
 /**
  * Функция возращает случайное целое число между min и max - включительно
@@ -380,11 +380,6 @@ scaleControlBigger.addEventListener('click', onScaleControlBiggerClick);
 
 pin.style.cursor = 'pointer';
 
-/* uploadFileInput.addEventListener('click', function (evtUpload) {
-  evtUpload.preventDefault();
-  document.querySelector('.img-upload__overlay').classList.remove('hidden');
-}); */
-
 uploadFileInput.addEventListener('change', function (evtChange) {
   evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
@@ -437,7 +432,6 @@ var onPinMousedown = function (evtDown) {
   evtDown.preventDefault();
 
   onPinMouseMove();
-
 };
 
 pin.addEventListener('mousedown', onPinMouseMove);
