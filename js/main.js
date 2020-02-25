@@ -262,7 +262,7 @@ var pictureImg = document.querySelector('.picture__img');
 pictureImg.addEventListener('click', function () {
   showBigPicture();
 });
-
+// ------------------------------------------------------------------- //
 var imgUploadPreview = document.querySelector('.img-upload__preview');
 var pin = document.querySelector('.effect-level__pin');
 var effectLevel = document.querySelector('.effect-level');
@@ -302,6 +302,8 @@ var showEffect = function (elements) {
   }
   imgUploadPreview.classList.add(effectsList[checkedInput.id]);
 };
+
+// ----------------------- Маштаб картинки -----------------------//
 var scaleControlValue = document.querySelector('.scale__control--value');
 
 var setScaleDefaultValue = function () {
@@ -345,8 +347,7 @@ var getScaleValue = function () {
 };
 // Функция возращает увеличеное значение маштаба
 var addScale = function () {
-  var currentValue = getScaleValue();
-  var nextScale = currentValue + Scale.STEP;
+  var nextScale = getScaleValue() + Scale.STEP;
   return nextScale < Scale.MAX ?
     nextScale
     :
@@ -354,9 +355,8 @@ var addScale = function () {
 };
 // Функция возращает уменьшенное значение маштаба
 var subtractScale = function () {
-  var currentValue = getScaleValue();
-  return currentValue - Scale.STEP >= Scale.MIN ?
-    currentValue - Scale.STEP
+  return getScaleValue() - Scale.STEP >= Scale.MIN ?
+    getScaleValue() - Scale.STEP
     :
     Scale.MIN;
 };
@@ -380,20 +380,19 @@ scaleControlBigger.addEventListener('click', onScaleControlBiggerClick);
 
 pin.style.cursor = 'pointer';
 
-uploadFileInput.addEventListener('click', function (evtUpload) {
+/* uploadFileInput.addEventListener('click', function (evtUpload) {
   evtUpload.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
-});
+}); */
 
-/* uploadFileInput.addEventListener('change', function (evtChange) {
+uploadFileInput.addEventListener('change', function (evtChange) {
   evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
-}); */
+});
 
 cancelButton.addEventListener('click', function (evtCancel) {
   evtCancel.preventDefault();
   document.querySelector('.img-upload__overlay').classList.add('hidden');
-  // imageUploadForm.reset();
 });
 
 document.body.addEventListener('keyup', function (evtEsc) {
@@ -403,16 +402,6 @@ document.body.addEventListener('keyup', function (evtEsc) {
     imageUploadForm.reset();
   }
 });
-
-var onPinMousedown = function (evtDown) {
-  evtDown.preventDefault();
-  // Получаем ширину ползунка
-  var pinWidthShift = pin.offsetWidth / 2;
-  // Получаем ширину контейнера для ползунка
-  var lineWidth = effectLevelLine.offsetWidth;
-  // Получаем начальные координаты ползунка
-  var coordStartX = evtDown.clientX;
-};
 
 var onPinMouseMove = function (evtMove) {
   evtMove.preventDefault();
@@ -444,7 +433,14 @@ var onPinMouseMove = function (evtMove) {
   }
 };
 
-pin.addEventListener('mousemove', onPinMouseMove);
+var onPinMousedown = function (evtDown) {
+  evtDown.preventDefault();
+
+  onPinMouseMove();
+
+};
+
+pin.addEventListener('mousedown', onPinMouseMove);
 
 var onPinMouseUp = function (evtUp) {
   evtUp.preventDefault();
@@ -526,21 +522,17 @@ var checkHashtags = function (hashtags) {
 
 // Функция выводит ошибки при вводе хэштегов
 var showErrors = function (errors) {
-  if (errors.length !== 0) {
-    textHashtags.setCustomValidity(errors.join(' \n'));
-  }
+  textHashtags.setCustomValidity(errors.join(' \n'));
 };
 
 var onHashtagsInputKyeup = function (evtInput) {
-  evtInput.preventDefault();
+  // evtInput.preventDefault();
   // Получаем массив хэштегов
-};
-
-var onHashtagsInputInvalid = function () {
   var hashtagsArray = getHashtags(textHashtags) || [];
   var errors = checkHashtags(hashtagsArray);
   console.log(errors);
-  showErrors(errors);
+  console.log(textHashtags.value);
+  textHashtags.setCustomValidity(errors.join(' \n'));
 };
 
 textHashtags.addEventListener('keyup', onHashtagsInputKyeup);
