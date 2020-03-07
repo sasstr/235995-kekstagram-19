@@ -1,6 +1,22 @@
 'use strict';
 
 var AMOUNT_OF_PHOTOS = 25;
+var HASHTAGS_MAX_AMOUNT = 5;
+var HASHTAG_REG_EXP = /^([#]{1})([A-Za-zА-ЯЁа-яё0-9]{1,19})$/g;
+// var HASHTAG_REG_EXP_1 = /^[a-z0-9а-яё]+$/gi; // @TODO переделать регулярку
+// var ENTER_KEY = 13;
+// var ESCAPE_KEY = 27;
+var Scale = {
+  MIN: 25,
+  MAX: 100,
+  DEFAULT: 100,
+  STEP: 25
+};
+
+var HashtagsSymbolsAmount = {
+  MAX: 19,
+  MIN: 2
+};
 var comments = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -42,11 +58,21 @@ var names = [
   'Дима',
   'Коля'
 ];
-var pictureElement = document.querySelector('.pictures');
+var pictureContainer = document.querySelector('.pictures');
 var main = document.querySelector('main');
+// Забираем шаблон для Большой фотки
 var bigPicture = document.querySelector('#big-picture')
   .content
   .querySelector('.big-picture');
+
+var uploadЫelectImage = document.querySelector('#upload-select-image');
+
+// Забираем шаблон для формы загрузки фото
+var imageUploadForm = document.querySelector('#img-upload__form')
+.content
+.querySelector('.img-upload__overlay');
+
+uploadЫelectImage.appendChild(imageUploadForm);
 
 /**
  * Функция возращает случайное целое число между min и max - включительно
@@ -163,7 +189,7 @@ var renderPictures = function (picturesList) {
   return picturesFragment;
 };
 
-pictureElement.appendChild(renderPictures(pictures));
+pictureContainer.appendChild(renderPictures(pictures));
 
 /**
  *  Функция создает элемент модального окна .big-picture из первой фотки
@@ -229,7 +255,6 @@ var showBigPicture = function () {
   main.insertBefore(picture, null);
   picture.classList.remove('hidden');
 };
-
 document.body.classList.add('modal-open');
 
 var pictureImg = document.querySelector('.picture__img');
@@ -237,3 +262,313 @@ var pictureImg = document.querySelector('.picture__img');
 pictureImg.addEventListener('click', function () {
   showBigPicture();
 });
+// ------------------------------------------------------------------- //
+var imgUploadPreview = document.querySelector('.img-upload__preview');
+var pin = document.querySelector('.effect-level__pin');
+var effectLevel = document.querySelector('.effect-level');
+var effectLevelLine = document.querySelector('.effect-level__line');
+var effectLevelDepth = document.querySelector('.effect-level__depth');
+var effectLevelValue = document.querySelector('.effect-level__value');
+var imgUploadEffects = document.querySelector('.img-upload__effects');
+
+effectLevel.classList.add('hidden');
+
+// Функция удаляет классы, которые делают эффекты активными
+var removeEffect = function () {
+  imgUploadPreview.classList.forEach(function (classItem) {
+    if (classItem.match('effects__preview')) {
+      imgUploadPreview.classList.remove(classItem);
+    }
+  });
+};
+
+var effectsList = {
+  'effect-none': 'effects__preview--none',
+  'effect-chrome': 'effects__preview--chrome',
+  'effect-sepia': 'effects__preview--sepia',
+  'effect-marvin': 'effects__preview--marvin',
+  'effect-phobos': 'effects__preview--phobos',
+  'effect-heat': 'effects__preview--heat',
+};
+// Функция показывает эффект в соответствии с выбранным input.id
+var showEffect = function (elements) {
+  var checkedInput = Array.from(elements).find(function (currentInput) {
+    return currentInput.checked;
+  });
+  if (checkedInput.id === 'effect-none') {
+    effectLevel.classList.add('hidden');
+  } else {
+    effectLevel.classList.remove('hidden');
+  }
+  imgUploadPreview.classList.add(effectsList[checkedInput.id]);
+};
+
+// ----------------------- Маштаб картинки -----------------------//
+var scaleControlValue = document.querySelector('.scale__control--value');
+
+var setScaleDefaultValue = function () {
+  scaleControlValue.value = '100%';
+  imgUploadPreview.setAttribute('style', 'transform: scale(1);');
+};
+
+// Функция обработчик события смены фильтра на картинке по клику.
+var onEffectChange = function (evtEffect) {
+  evtEffect.preventDefault();
+  setScaleDefaultValue();
+  removeEffect();
+  showEffect(evtEffect.currentTarget.elements);
+};
+
+imgUploadEffects.addEventListener('change', onEffectChange);
+
+var cancelButton = document.querySelector('.cancel');
+var scaleControlSmaller = document.querySelector('.scale__control--smaller');
+var scaleControlBigger = document.querySelector('.scale__control--bigger');
+
+var uploadFileInput = document.querySelector('#upload-file');
+
+scaleControlValue.value = '100%';
+// Функция установит значение маштаба картинки
+var setImageScalelValue = function (value) {
+  imgUploadPreview.setAttribute('style', 'transform: scale(' + (value / 100) + ');');
+};
+
+// Функция возращает значение поля маштаба картинки
+var getScaleValue = function () {
+  var currentValue = parseInt(scaleControlValue.value, 10);
+  var modulo = currentValue % Scale.STEP;
+  if (currentValue % Scale.STEP !== 0) {
+    return currentValue % Scale.STEP > Scale.STEP / 2 ?
+      currentValue + (Scale.STEP - modulo)
+      :
+      currentValue - modulo;
+  }
+  return currentValue;
+};
+// Функция возращает увеличеное значение маштаба
+var addScale = function () {
+  var nextScale = getScaleValue() + Scale.STEP;
+  return nextScale < Scale.MAX ?
+    nextScale
+    :
+    Scale.MAX;
+};
+// Функция возращает уменьшенное значение маштаба
+var subtractScale = function () {
+  return getScaleValue() - Scale.STEP >= Scale.MIN ?
+    getScaleValue() - Scale.STEP
+    :
+    Scale.MIN;
+};
+// Функция обработчик события клик на кнопке уменьшения маштаба картинки
+var onScaleControlSmallerClick = function () {
+  var smallerValue = subtractScale();
+  scaleControlValue.value = smallerValue + '%';
+  setImageScalelValue(smallerValue);
+};
+
+scaleControlSmaller.addEventListener('click', onScaleControlSmallerClick);
+
+// Функция обработчик события клик на кнопке увеличения маштаба картинки
+var onScaleControlBiggerClick = function () {
+  var biggerValue = addScale();
+  scaleControlValue.value = biggerValue + '%';
+  setImageScalelValue(biggerValue);
+};
+
+scaleControlBigger.addEventListener('click', onScaleControlBiggerClick);
+
+uploadFileInput.addEventListener('change', function (evtChange) {
+  evtChange.preventDefault();
+  document.querySelector('.img-upload__overlay').classList.remove('hidden');
+});
+
+cancelButton.addEventListener('click', function (evtCancel) {
+  evtCancel.preventDefault();
+  document.querySelector('.img-upload__overlay').classList.add('hidden');
+});
+
+document.body.addEventListener('keyup', function (evtEsc) {
+  evtEsc.preventDefault();
+  if (evtEsc.key === 'Escape') {
+    document.querySelector('.img-upload__overlay').classList.add('hidden');
+    imageUploadForm.reset();
+  }
+});
+
+// ----------------- Перемещение ползунка Pin ------------------ //
+/*
+ 2.2. Наложение эффекта на изображение:
+По умолчанию должен быть выбран эффект «Оригинал». ---
+
+На изображение может накладываться только один эффект. ---
+
+При смене эффекта, выбором одного из значений среди радиокнопок
+.effects__radio, добавить картинке внутри .img-upload__preview CSS-класс,
+соответствующий эффекту. Например, если выбран эффект .effect-chrome,
+изображению нужно добавить класс effects__preview--chrome. ---
+
+Интенсивность эффекта регулируется перемещением ползунка в слайдере
+.effect-level__pin. Уровень эффекта записывается в поле .effect-level__value. ---
+
+При изменении уровня интенсивности эффекта, CSS-стили картинки внутри ---
+.img-upload__preview обновляются следующим образом:
+
+Для эффекта «Хром» — filter: grayscale(0..1);  ---
+Для эффекта «Сепия» — filter: sepia(0..1); ---
+Для эффекта «Марвин» — filter: invert(0..100%); ---
+Для эффекта «Фобос» — filter: blur(0..3px); ---
+Для эффекта «Зной» — filter: brightness(1..3); ---
+
+Для эффекта «Оригинал» CSS-стили filter удаляются. ---
+При выборе эффекта «Оригинал» слайдер скрывается. +++
+
+При переключении эффектов, уровень насыщенности сбрасывается
+до начального значения (100%): слайдер, CSS-стиль изображения  ---
+и значение поля должны обновляться.
+*/
+
+// var effectsElements= document.querySelectorAll('.effects__radio');
+
+pin.style.cursor = 'pointer';
+
+/* var filter = {
+  none: 'original',
+  chrome: 1,
+  sepia: 1,
+  marvin: 100,
+  phobos: 3,
+  heat: 3,
+}; */
+
+var onPinMouseMove = function (evtMove) {
+  evtMove.preventDefault();
+  var pinWidthShift = pin.offsetWidth / 2;
+  // Получаем ширину контейнера для ползунка
+  var lineWidth = effectLevelLine.offsetWidth;
+  // Получаем начальные координаты ползунка
+  var coordStartX = evtMove.clientX;
+
+  // Получаем координаты смещения по X
+  var shiftCoord = coordStartX - evtMove.clientX;
+
+  // Получаем длину родителя ползунка в переделах которого он должен перемещаться
+  var PinLimit = {
+    MIN: effectLevelLine.offsetLeft - pinWidthShift,
+    MAX: effectLevelLine.offsetLeft + lineWidth + pinWidthShift,
+  };
+  // Получаем новые координаты ползунка по X
+  var pinCoordX = pin.offsetLeft - shiftCoord;
+  // Получаем новый % на который попал ползунок
+  var pinLocation = pinCoordX / lineWidth;
+
+  coordStartX = evtMove.clientX;
+
+  if (pinCoordX > PinLimit.MIN && pinCoordX < PinLimit.MAX) {
+    pin.style.left = pinCoordX + 'px';
+    effectLevelDepth.style.width = pinLocation * 100 + '%';
+    effectLevelValue.value = Math.trunc(pinLocation * 100);
+  }
+};
+
+/* var onPinMousedown = function (evtDown) {
+  evtDown.preventDefault();
+
+  onPinMouseMove();
+}; */
+
+// pin.addEventListener('mousedown', onPinMousedown);
+
+/* var onPinMouseUp = function (evtUp) {
+  evtUp.preventDefault();
+  evtUp.clientX
+  pin.removeEventListener('mousemove', onPinMousedown);
+}; */
+
+pin.addEventListener('mouseup', onPinMouseMove);
+
+// Валидация хэштегов
+
+var textHashtags = document.querySelector('.text__hashtags');
+
+// Функция преобразует введенные пользователем хэштеги в массив хэштегов
+var getHashtags = function (inputHashtags) {
+  var hashtags = inputHashtags.value.toLowerCase();
+  hashtags = hashtags.split(' ');
+
+  if (hashtags.length !== 0) {
+    return hashtags;
+  }
+
+  return 0;
+};
+// Функция убирает все дубликаты из массива.
+var removeDuplicate = function (array) {
+  var result = [];
+
+  array.forEach(function (item) {
+    if (!result.includes(item)) {
+      result.push(item);
+    }
+  });
+
+  return result;
+};
+
+// Функция валидирует правильность введенных хэштегов
+var checkHashtags = function (hashtags) {
+  var checkedHashtags = [];
+  var errors = []; // Можно в цикле убирать конечно повторы, но это как то странно
+
+  if (hashtags === 0) {
+    return errors;
+  }
+
+  var noEmptyHashtags = hashtags.filter(function (hashtag) {
+    return hashtag.trim() !== '';
+  });
+
+  if (noEmptyHashtags.length !== hashtags.length) {
+    errors.push('Не может быть хэштегов состоящих только из пробелов!');
+  }
+
+  if (hashtags.length > HASHTAGS_MAX_AMOUNT) {
+    errors.push('Хэштегов не может быть больше пяти!');
+  }
+  hashtags.forEach(function (hashtag) {
+    hashtag.toLowerCase();
+    if (!hashtag.startsWith('#')) {
+      errors.push('Вы должны начинать название хэштега с #');
+    }
+    if (hashtag.length > HashtagsSymbolsAmount.MAX) {
+      errors.push('Хэштег не может состоять из' + hashtag.length + ' символов. /n Максимальная длинна не более 20 символов');
+    }
+    if (hashtag.length < HashtagsSymbolsAmount.MIN) {
+      errors.push('Хэштег не может состоять из одного символа');
+    }
+    if (!hashtag.match(HASHTAG_REG_EXP)) {
+      errors.push('Хеш-тег может состоять только из букв и цифр.');
+    }
+    checkedHashtags.push(hashtag);
+  });
+  if (removeDuplicate(checkedHashtags).length !== hashtags.length) {
+    errors.push('Не может быть одинаковых хэштегов!');
+  }
+
+  return removeDuplicate(errors);
+};
+
+// Функция выводит ошибки при вводе хэштегов
+/* var showErrors = function (errors) {
+  textHashtags.setCustomValidity(errors.join(' \n'));
+}; */
+
+var onHashtagsInputKyeup = function () {
+  // evtInput.preventDefault();
+  // Получаем массив хэштегов
+  var hashtagsArray = getHashtags(textHashtags) || [];
+  var errors = checkHashtags(hashtagsArray);
+  textHashtags.setCustomValidity(errors.join(' \n'));
+};
+
+textHashtags.addEventListener('keyup', onHashtagsInputKyeup);
