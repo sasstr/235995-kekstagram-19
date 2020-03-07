@@ -3,9 +3,9 @@
 var AMOUNT_OF_PHOTOS = 25;
 var HASHTAGS_MAX_AMOUNT = 5;
 var HASHTAG_REG_EXP = /^([#]{1})([A-Za-zА-ЯЁа-яё0-9]{1,19})$/g;
-var HASHTAG_REG_EXP_1 = /^[a-z0-9а-яё]+$/gi; // @TODO переделать регулярку
-var ENTER_KEY = 13;
-var ESCAPE_KEY = 27;
+// var HASHTAG_REG_EXP_1 = /^[a-z0-9а-яё]+$/gi; // @TODO переделать регулярку
+// var ENTER_KEY = 13;
+// var ESCAPE_KEY = 27;
 var Scale = {
   MIN: 25,
   MAX: 100,
@@ -337,7 +337,7 @@ var setImageScalelValue = function (value) {
 var getScaleValue = function () {
   var currentValue = parseInt(scaleControlValue.value, 10);
   var modulo = currentValue % Scale.STEP;
-  if (currentValue % Scale.STEP !== 0 ) {
+  if (currentValue % Scale.STEP !== 0) {
     return currentValue % Scale.STEP > Scale.STEP / 2 ?
       currentValue + (Scale.STEP - modulo)
       :
@@ -428,18 +428,18 @@ document.body.addEventListener('keyup', function (evtEsc) {
 и значение поля должны обновляться.
 */
 
-var effectsElements= document.querySelectorAll('.effects__radio');
+// var effectsElements= document.querySelectorAll('.effects__radio');
 
 pin.style.cursor = 'pointer';
 
-var filter = {
+/* var filter = {
   none: 'original',
   chrome: 1,
   sepia: 1,
   marvin: 100,
   phobos: 3,
   heat: 3,
-};
+}; */
 
 var onPinMouseMove = function (evtMove) {
   evtMove.preventDefault();
@@ -471,19 +471,19 @@ var onPinMouseMove = function (evtMove) {
   }
 };
 
-var onPinMousedown = function (evtDown) {
+/* var onPinMousedown = function (evtDown) {
   evtDown.preventDefault();
 
   onPinMouseMove();
-};
+}; */
 
 // pin.addEventListener('mousedown', onPinMousedown);
 
-var onPinMouseUp = function (evtUp) {
+/* var onPinMouseUp = function (evtUp) {
   evtUp.preventDefault();
   evtUp.clientX
   pin.removeEventListener('mousemove', onPinMousedown);
-};
+}; */
 
 pin.addEventListener('mouseup', onPinMouseMove);
 
@@ -559,11 +559,11 @@ var checkHashtags = function (hashtags) {
 };
 
 // Функция выводит ошибки при вводе хэштегов
-var showErrors = function (errors) {
+/* var showErrors = function (errors) {
   textHashtags.setCustomValidity(errors.join(' \n'));
-};
+}; */
 
-var onHashtagsInputKyeup = function (evtInput) {
+var onHashtagsInputKyeup = function () {
   // evtInput.preventDefault();
   // Получаем массив хэштегов
   var hashtagsArray = getHashtags(textHashtags) || [];
