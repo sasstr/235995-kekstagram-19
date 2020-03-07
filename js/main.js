@@ -290,7 +290,7 @@ var effectsList = {
   'effect-phobos': 'effects__preview--phobos',
   'effect-heat': 'effects__preview--heat',
 };
-
+// Функция показывает эффект в соответствии с выбранным input.id
 var showEffect = function (elements) {
   var checkedInput = Array.from(elements).find(function (currentInput) {
     return currentInput.checked;
@@ -378,8 +378,6 @@ var onScaleControlBiggerClick = function () {
 
 scaleControlBigger.addEventListener('click', onScaleControlBiggerClick);
 
-pin.style.cursor = 'pointer';
-
 uploadFileInput.addEventListener('change', function (evtChange) {
   evtChange.preventDefault();
   document.querySelector('.img-upload__overlay').classList.remove('hidden');
@@ -397,6 +395,51 @@ document.body.addEventListener('keyup', function (evtEsc) {
     imageUploadForm.reset();
   }
 });
+
+// ----------------- Перемещение ползунка Pin ------------------ //
+/*
+ 2.2. Наложение эффекта на изображение:
+По умолчанию должен быть выбран эффект «Оригинал». ---
+
+На изображение может накладываться только один эффект. ---
+
+При смене эффекта, выбором одного из значений среди радиокнопок
+.effects__radio, добавить картинке внутри .img-upload__preview CSS-класс,
+соответствующий эффекту. Например, если выбран эффект .effect-chrome,
+изображению нужно добавить класс effects__preview--chrome. ---
+
+Интенсивность эффекта регулируется перемещением ползунка в слайдере
+.effect-level__pin. Уровень эффекта записывается в поле .effect-level__value. ---
+
+При изменении уровня интенсивности эффекта, CSS-стили картинки внутри ---
+.img-upload__preview обновляются следующим образом:
+
+Для эффекта «Хром» — filter: grayscale(0..1);  ---
+Для эффекта «Сепия» — filter: sepia(0..1); ---
+Для эффекта «Марвин» — filter: invert(0..100%); ---
+Для эффекта «Фобос» — filter: blur(0..3px); ---
+Для эффекта «Зной» — filter: brightness(1..3); ---
+
+Для эффекта «Оригинал» CSS-стили filter удаляются. ---
+При выборе эффекта «Оригинал» слайдер скрывается. +++
+
+При переключении эффектов, уровень насыщенности сбрасывается
+до начального значения (100%): слайдер, CSS-стиль изображения  ---
+и значение поля должны обновляться.
+*/
+
+var effectsElements= document.querySelectorAll('.effects__radio');
+
+pin.style.cursor = 'pointer';
+
+var filter = {
+  none: 'original',
+  chrome: 1,
+  sepia: 1,
+  marvin: 100,
+  phobos: 3,
+  heat: 3,
+};
 
 var onPinMouseMove = function (evtMove) {
   evtMove.preventDefault();
@@ -434,14 +477,15 @@ var onPinMousedown = function (evtDown) {
   onPinMouseMove();
 };
 
-pin.addEventListener('mousedown', onPinMouseMove);
+// pin.addEventListener('mousedown', onPinMousedown);
 
 var onPinMouseUp = function (evtUp) {
   evtUp.preventDefault();
-  pin.removeEventListener('mousemove', onPinMouseMove);
+  evtUp.clientX
+  pin.removeEventListener('mousemove', onPinMousedown);
 };
 
-pin.addEventListener('mouseup', onPinMouseUp);
+pin.addEventListener('mouseup', onPinMouseMove);
 
 // Валидация хэштегов
 
@@ -524,43 +568,7 @@ var onHashtagsInputKyeup = function (evtInput) {
   // Получаем массив хэштегов
   var hashtagsArray = getHashtags(textHashtags) || [];
   var errors = checkHashtags(hashtagsArray);
-  console.log(errors);
-  console.log(textHashtags.value);
   textHashtags.setCustomValidity(errors.join(' \n'));
 };
 
 textHashtags.addEventListener('keyup', onHashtagsInputKyeup);
-
-// textHashtags.addEventListener('invalid', onHashtagsInputInvalid);
-
-/*
-2.3. Хэш-теги:
-хэш-тег начинается с символа # (решётка); +++
-
-строка после решётки должна состоять из букв и чисел и
-не может содержать пробелы, спецсимволы (#, @, $ и т.п.),
-символы пунктуации (тире, дефис, запятая и т.п.), эмодзи и т.д.; ---
-
-хеш-тег не может состоять только из одной решётки; +++
-
-максимальная длина одного хэш-тега 20 символов, включая решётку; +++
-
-хэш-теги нечувствительны к регистру: #ХэшТег и #хэштег  +++
-считаются одним и тем же тегом;
-
-хэш-теги разделяются пробелами; +++
-
-один и тот же хэш-тег не может быть использован дважды; +++
-
-нельзя указать больше пяти хэш-тегов; +++
-
-хэш-теги необязательны; ---
-
-===========================================================
-если фокус находится в поле ввода хэш-тега, нажатие
-на Esc не должно приводить к закрытию формы редактирования изображения.
-
-===========================================================
-Сообщения о неправильном формате хэштега задаются
-с помощью метода setCustomValidity у соответствующего поля.
-*/
